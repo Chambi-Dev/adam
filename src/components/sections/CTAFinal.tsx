@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
+import { IconBrandGithub, IconMail } from "@tabler/icons-react";
 
 export default function CTAFinal() {
   const [formData, setFormData] = useState({
@@ -33,11 +34,11 @@ export default function CTAFinal() {
           <div className="flex flex-col gap-4">
             <p className="text-[var(--text-muted)]">O contáctame directamente en:</p>
             <div className="flex flex-col gap-2">
-              <a href="mailto:adam@example.com" className="text-[var(--accent-cyan)] hover:underline inline-flex items-center gap-2">
-                ✉️ adam@example.com
+              <a href="mailto:chambiadam20@gmail.com" className="text-[var(--accent-cyan)] hover:text-white inline-flex items-center gap-2.5 transition-colors">
+                <IconMail size={18} /> chambiadam20@gmail.com
               </a>
-              <a href="https://github.com/adamchambi" target="_blank" rel="noopener noreferrer" className="text-[var(--accent-violet)] hover:underline inline-flex items-center gap-2">
-                🔗 github.com/adamchambi
+              <a href="https://github.com/Chambi-Dev" target="_blank" rel="noopener noreferrer" className="text-[var(--accent-violet)] hover:text-white inline-flex items-center gap-2.5 transition-colors">
+                <IconBrandGithub size={18} /> github.com/Chambi-Dev
               </a>
             </div>
           </div>

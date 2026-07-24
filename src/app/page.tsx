@@ -10,6 +10,7 @@ import { StackTecnico } from "@/components/sections/StackTecnico";
 import { SobreTi } from "@/components/sections/SobreTi";
 import CTAFinal from "@/components/sections/CTAFinal";
 import Footer from "@/components/sections/Footer";
+import WhatsAppButton from "@/components/sections/WhatsAppButton";
 
 // Lazy load the heaviest section (animations + typewriter + intersection observer)
 const DemoSimulada = dynamic(
@@ -45,6 +46,7 @@ export default function Home() {
         <CTAFinal />
       </main>
       <Footer />
+      <WhatsAppButton />
     </>
   );
 }
