@@ -4,13 +4,21 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useIntersectionOnce } from "@/hooks/useIntersectionOnce";
+import { IconChartBar, IconRobot, IconBell } from "@tabler/icons-react";
+
+// Icon map: we use placeholders in the text that get replaced with real SVG icons during render
+const ICON_PLACEHOLDERS: Record<string, React.ReactNode> = {
+  "{{CHART}}": <IconChartBar size={18} className="inline-block text-[var(--accent-cyan)] -mt-0.5" />,
+  "{{ROBOT}}": <IconRobot size={18} className="inline-block text-[var(--accent-violet)] -mt-0.5" />,
+  "{{BELL}}":  <IconBell size={18} className="inline-block text-[var(--accent-cyan)] -mt-0.5" />,
+};
 
 export default function DemoSimulada() {
   const [ref, hasIntersected] = useIntersectionOnce();
   const [step, setStep] = useState<number>(0);
   const [typedText, setTypedText] = useState("");
   
-  const fullText = "Puedo construir eso. Te propongo un sistema con tres módulos:\n\n📊 **Dashboard en tiempo real** — niveles de stock actualizados al segundo\n🤖 **Motor de predicción** — analiza patrones de venta y estacionalidad\n🔔 **Alertas inteligentes** — notificaciones cuando un producto baja del punto de reorden\n\nEl motor de predicción se entrenará con tu historial de ventas para sugerir cantidades óptimas de reposición. ¿Empezamos con una demo?";
+  const fullText = "Puedo construir eso. Te propongo un sistema con tres módulos:\n\n{{CHART}} **Dashboard en tiempo real** — niveles de stock actualizados al segundo\n{{ROBOT}} **Motor de predicción** — analiza patrones de venta y estacionalidad\n{{BELL}} **Alertas inteligentes** — notificaciones cuando un producto baja del punto de reorden\n\nEl motor de predicción se entrenará con tu historial de ventas para sugerir cantidades óptimas de reposición. ¿Empezamos con una demo?";
 
   useEffect(() => {
     if (!hasIntersected) return;
@@ -32,9 +40,18 @@ export default function DemoSimulada() {
     if (step === 2) {
       let i = 0;
       const typeInterval = setInterval(() => {
-        setTypedText(fullText.slice(0, i));
-        i++;
-        if (i > fullText.length) {
+        // Skip ahead if we're in the middle of a placeholder token {{...}}
+        let nextI = i + 1;
+        const remaining = fullText.slice(i);
+        for (const token of Object.keys(ICON_PLACEHOLDERS)) {
+          if (remaining.startsWith(token)) {
+            nextI = i + token.length;
+            break;
+          }
+        }
+        setTypedText(fullText.slice(0, nextI));
+        i = nextI;
+        if (i >= fullText.length) {
           clearInterval(typeInterval);
           setStep(3); // CTA step
         }
@@ -44,14 +61,26 @@ export default function DemoSimulada() {
     }
   }, [step, fullText]);
 
-  // Replace markdown bold with strong tags for rendering
+  // Render formatted text: replaces **bold**, and icon placeholders with real components
   const renderFormattedText = (text: string) => {
-    const parts = text.split(/(\*\*.*?\*\*)/g);
-    return parts.map((part, i) => {
-      if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={i} className="text-white font-bold">{part.slice(2, -2)}</strong>;
+    // First split by icon placeholders, then by bold markers
+    const iconPattern = /(\{\{CHART\}\}|\{\{ROBOT\}\}|\{\{BELL\}\})/g;
+    const segments = text.split(iconPattern);
+
+    return segments.map((segment, segIdx) => {
+      // Check if this segment is an icon placeholder
+      if (ICON_PLACEHOLDERS[segment]) {
+        return <React.Fragment key={`icon-${segIdx}`}>{ICON_PLACEHOLDERS[segment]}</React.Fragment>;
       }
-      return <span key={i}>{part}</span>;
+
+      // Otherwise, process bold markers within the segment
+      const boldParts = segment.split(/(\*\*.*?\*\*)/g);
+      return boldParts.map((part, i) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          return <strong key={`${segIdx}-${i}`} className="text-white font-bold">{part.slice(2, -2)}</strong>;
+        }
+        return <span key={`${segIdx}-${i}`}>{part}</span>;
+      });
     });
   };
 
